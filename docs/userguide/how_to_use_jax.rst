@@ -25,7 +25,7 @@ operations are performed using ``numpy`` or ``jax.numpy``. In many
 cases, the “default backend” is used to determine which of the two
 options is used.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     # configure jax to use 64 bit mode
     import jax
@@ -40,7 +40,7 @@ options is used.
 
 The default backend can be observed via:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     Array.default_backend()
 
@@ -93,7 +93,7 @@ For convenience, the ``wrap`` function can be used to transform
 ``jax.jit`` to also work on functions that have :class:`.Array` objects as
 inputs and outputs.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     from qiskit_dynamics.array import wrap
 
@@ -101,7 +101,7 @@ inputs and outputs.
 
 Construct a :class:`.Solver` instance with a model that will be used to solve.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     import numpy as np
     from qiskit.quantum_info import Operator
@@ -133,7 +133,7 @@ Next, define the function to be compiled:
 Note, as described at the beginning of this section, we need to make a copy of ``solver``
 before setting the signals, to ensure the simulation function remains pure.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     def sim_function(amp):
 
@@ -154,7 +154,7 @@ before setting the signals, to ensure the simulation function remains pure.
 
 Compile the function.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     fast_sim = jit(sim_function)
 
@@ -162,7 +162,7 @@ The first time the function is called, JAX will compile an
 `XLA <https://www.tensorflow.org/xla>`__ version of the function, which is then executed.
 Hence, the time taken on the first call *includes* compilation time.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     %time ys = fast_sim(1.).block_until_ready()
 
@@ -170,7 +170,7 @@ Hence, the time taken on the first call *includes* compilation time.
 On subsequent calls the compiled function is directly executed,
 demonstrating the true speed of the compiled function.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     %timeit fast_sim(1.).block_until_ready()
 
@@ -178,7 +178,7 @@ demonstrating the true speed of the compiled function.
 We use this function to plot the :math:`Z` expectation value over a
 range of input amplitudes.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     import matplotlib.pyplot as plt
 
@@ -195,7 +195,7 @@ simulation. In this case, ``jax.grad`` requires that the output be a
 real number, so we specifically compute the population in the excited
 state at the end of the previous simulation
 
-.. jupyter-execute::
+.. code-block:: python3
 
     def excited_state_pop(amp):
         yf = sim_function(amp)[-1]
@@ -204,7 +204,7 @@ state at the end of the previous simulation
 Wrap ``jax.grad`` in the same way, then differentiate and compile
 ``excited_state_pop``.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     grad = wrap(jax.grad, decorator=True)
 
@@ -212,14 +212,14 @@ Wrap ``jax.grad`` in the same way, then differentiate and compile
 
 As before, the first execution includes compilation time.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     %time excited_pop_grad(1.).block_until_ready()
 
 
 Subsequent runs of the function reveal the execution time once compiled.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     %timeit excited_pop_grad(1.).block_until_ready()
 

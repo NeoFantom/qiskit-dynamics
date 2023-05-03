@@ -48,7 +48,7 @@ where:
 
 First, construct the components of the model:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     import numpy as np
     from qiskit.quantum_info import Operator
@@ -77,7 +77,7 @@ First, construct the components of the model:
 Construct a :class:`.Solver` for the model as stated, without entering a rotating frame, and solve,
 timing the solver.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     solver = Solver(
         static_hamiltonian=static_hamiltonian,
@@ -90,7 +90,7 @@ timing the solver.
 Next, define a :class:`.Solver` in the rotating frame of the static
 Hamiltonian by setting the ``rotating_frame`` kwarg, and solve, again timing the solver.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     rf_solver = Solver(
         static_hamiltonian=static_hamiltonian,
@@ -114,7 +114,7 @@ To compare the results, we use the fidelity function for unitary matrices:
 
 where :math:`d` is the dimension. A value of :math:`1` indicates equality of the unitaries.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     def fidelity(U, V):
         # the fidelity function
@@ -134,13 +134,13 @@ The discrepancy in solving times can be understood by examining the number of
 right-hand side (RHS) evaluations when solving the differential equation in each instance.
 The number of RHS evaluations for the first simulation (not in the rotating frame) was:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     results.nfev
 
 Whereas the number of evaluations for the second simulation in the rotating frame was:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     rf_results.nfev
 
@@ -159,7 +159,7 @@ for specific details about the RWA.
 Construct a solver for the same problem, now specifying an RWA cutoff frequency and
 the carrier frequencies relative to which the cutoff should be applied:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     rwa_solver = Solver(
         static_hamiltonian=static_hamiltonian,
@@ -175,14 +175,14 @@ the carrier frequencies relative to which the cutoff should be applied:
 We observe a further reduction in time, which is a result of the solver requiring even fewer RHS
 evaluations with the RWA:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     rwa_results.nfev
 
 This speed comes at the cost of lower accuracy, owing to the fact that RWA is a
 legitimate *approximation*, which modifies the structure of the solution:
 
-.. jupyter-execute::
+.. code-block:: python3
 
     U_rwa = rwa_solver.model.rotating_frame.state_out_of_frame(T, rwa_results.y[-1])
 
@@ -213,7 +213,7 @@ explanation of how to work with JAX in Qiskit Dynamics.
 
 Start off by configuring to use JAX.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     from qiskit_dynamics.array import Array
 
@@ -232,7 +232,7 @@ benefits of using sparse arrays. Furthermore, set up the initial state to
 be a single column vector, to
 further highlight the benefits of the sparse representation.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     dim = 300
 
@@ -257,7 +257,7 @@ Construct standard dense solver in the rotating frame of the static
 Hamiltonian, define a function to solve the system for a given
 amplitude, and just-in-time compile it using JAX.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     solver = Solver(
         static_hamiltonian=static_hamiltonian,
@@ -284,7 +284,7 @@ Hamiltonian**, define a function to solve the system for a given amplitude,
 and just-in-time compile it. Note that in this case the static Hamiltonian is already
 diagonal, but we explicitly highlight the need for this.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     sparse_solver = Solver(static_hamiltonian=static_hamiltonian,
                            hamiltonian_operators=[drive_hamiltonian],
@@ -307,21 +307,21 @@ diagonal, but we explicitly highlight the need for this.
 
 Run the dense simulation (twice to see the true compiled speed).
 
-.. jupyter-execute::
+.. code-block:: python3
 
     yf = jitted_dense_func(1.).block_until_ready()
     %time yf = jitted_dense_func(1.).block_until_ready()
 
 Run the sparse solver (twice to see the true compiled speed).
 
-.. jupyter-execute::
+.. code-block:: python3
 
     yf_sparse = jitted_sparse_func(1.).block_until_ready()
     %time yf_sparse = jitted_sparse_func(1.).block_until_ready()
 
 Verify equality of the results in a common frame.
 
-.. jupyter-execute::
+.. code-block:: python3
 
     yf = solver.model.rotating_frame.state_out_of_frame(T, yf)
     yf_sparse = sparse_solver.model.rotating_frame.state_out_of_frame(T, yf_sparse)
